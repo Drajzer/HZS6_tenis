@@ -45,7 +45,7 @@ public class ManageGame : MonoBehaviour
     private Color WantedColor;
     private BallControler bc;
     private Rigidbody rb;
-    bool canPause;
+    public bool canPause;
 
     private int DJscore;
     private int FDscore;

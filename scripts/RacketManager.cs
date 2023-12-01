@@ -38,6 +38,13 @@ public class RacketManager : MonoBehaviour
     private Transform RacketTip;
 
     [SerializeField]
+    private Color colorNormal;
+    [SerializeField]
+    private Color Wasted;
+    [SerializeField]
+    private Image Stamina;
+
+    [SerializeField]
     Transform TransfromStart;
     [SerializeField]
     Transform TransfromMid;
@@ -59,6 +66,15 @@ public class RacketManager : MonoBehaviour
     private Color NormalColor;
     [SerializeField]
     private Color PerfectColor;
+    [SerializeField]
+    private float StaminaRecoverSpeed;
+    [SerializeField]
+    private float staminaWastePerClick;
+    [SerializeField]
+    private Slider slider;
+
+    bool staminaWasted = false;
+    private float StaminaLeft;
 
     [SerializeField]
     private Transform Racket;
@@ -98,18 +114,21 @@ public class RacketManager : MonoBehaviour
 
     void Update()
     {
+        slider.value = StaminaLeft;
         LookAtObject.position = ParentObject.position + (RotateVectorAroundY(ParentObject.forward, (0.5f - Value) * 2 * -SpineRotateMultiplier) * 5);
         MoveRacket();
         DetectColision();
         ManageBallUI();
+        ManageStamina();
         canHit = BC.ShouldHit;
         lerpV();
         if (cantHit >= -1)
         {
             cantHit -= Time.deltaTime;
         }
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !staminaWasted)
         {
+            StaminaLeft -= staminaWastePerClick;
             if (wantedValue == 0)
             {
                 wantedValue = 1;
@@ -227,5 +246,28 @@ public class RacketManager : MonoBehaviour
     private Vector2 v3to2(Vector3 v)
     {
         return new Vector2 (v.x, v.z);
+    }
+
+    void ManageStamina()
+    {
+        StaminaLeft += Time.deltaTime * StaminaRecoverSpeed;
+        StaminaLeft = Mathf.Clamp01(StaminaLeft);
+        if (StaminaLeft <= 0)
+        {
+            staminaWasted = true;
+        }
+        if (StaminaLeft >= 1)
+        {
+            staminaWasted = false;
+        }
+        if (staminaWasted)
+        {
+            Stamina.color = Color.Lerp(Wasted, colorNormal, StaminaLeft);
+        }
+        else
+        {
+            Stamina.color = colorNormal;
+        }
+
     }
 }

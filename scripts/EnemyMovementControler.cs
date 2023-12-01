@@ -53,6 +53,8 @@ public class EnemyMovementControler : MonoBehaviour
     Vector3 lastPos;
     float timeLeft;
     float time;
+    [SerializeField]
+    private ManageSavingAndData data;
     // Update is called once per frame
 
     private void Awake()
@@ -87,6 +89,7 @@ public class EnemyMovementControler : MonoBehaviour
 
     void Update()
     {
+        difficulty = data.save.Difficulty;
         SetDfficultyParameters();
         agent.speed = sp;
         DetectMovement();

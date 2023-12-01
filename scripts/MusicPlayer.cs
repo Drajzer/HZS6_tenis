@@ -17,7 +17,7 @@ public class MusicPlayer : MonoBehaviour
     void Update()
     {
         source.volume = Volume;
-        if (!source.isPlaying)
+        if (!source.isPlaying && Time.timeScale > 0)
         {
             source.clip = clips[i];
             source.Play();
