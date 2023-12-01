@@ -110,6 +110,8 @@ public class ManageGame : MonoBehaviour
         AudioListener.volume = 0;
         yield return new WaitForSeconds(2);
         WinScreen.SetActive(true);
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
     }
 
     private IEnumerator Lose()
@@ -119,6 +121,8 @@ public class ManageGame : MonoBehaviour
         WantedColor = End;
         yield return new WaitForSeconds(2);
         LossScreen.SetActive(true);
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
     }
 
     void LerpColor()
@@ -134,7 +138,7 @@ public class ManageGame : MonoBehaviour
         rb.isKinematic = false;
         if (Random.value < 0.5f)
         {
-            PlayerHit.HitBall(Vector3.forward, false, false, 0.5f);
+            PlayerHit.HitBall(Vector3.forward, false, false, 0.7f);
         }
         else
         {

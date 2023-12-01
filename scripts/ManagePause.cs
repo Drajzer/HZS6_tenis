@@ -40,6 +40,8 @@ public class ManagePause : MonoBehaviour
         AudioListener.pause = true;
         GameplayStuff.SetActive(false);
         Menu.SetActive(true);
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
     }
 
     void UnPause()
@@ -50,5 +52,7 @@ public class ManagePause : MonoBehaviour
         GameplayStuff.SetActive(true);
         Menu.SetActive(false);
         Menu1.SetActive(false);
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 }
