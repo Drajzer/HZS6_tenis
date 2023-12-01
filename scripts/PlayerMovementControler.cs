@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering.VirtualTexturing;
+using UnityEngine.UI;
 
 public class PlayerMovementControler : MonoBehaviour
 {
@@ -27,6 +27,8 @@ public class PlayerMovementControler : MonoBehaviour
     private float DashTotalRecoveryTime;
     [SerializeField]
     private ManageSoundsForPlayer sounds;
+    [SerializeField]
+    private Slider DashBar;
 
     float CurrentRecoveryTime;
 
@@ -53,6 +55,7 @@ public class PlayerMovementControler : MonoBehaviour
 
     void Update()
     {
+        DashBar.value = Mathf.Clamp01(CurrentRecoveryTime / DashTotalRecoveryTime);
         movementVector = Vector3.Lerp(movementVector, new Vector3(Input.GetAxis("Vertical"), 0, -Input.GetAxis("Horizontal")), Time.deltaTime * DirectionChangeSpeed);
 
         NormalizedMV = movementVector;
@@ -78,7 +81,7 @@ public class PlayerMovementControler : MonoBehaviour
         }
         else
         {
-            Controller.Move(NormalizedMV * DashSpeed * Time.deltaTime);
+            Controller.Move(NormalizedMV.normalized * DashSpeed * Time.deltaTime);
         }
 
         RealSpeed = Mathf.Lerp(RealSpeed,  Vector3.Distance(LastPosition, transform.position) / Time.deltaTime, Time.deltaTime * Acceleration);

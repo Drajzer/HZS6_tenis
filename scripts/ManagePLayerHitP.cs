@@ -4,6 +4,7 @@ using System.Data;
 using System.Net.NetworkInformation;
 using Unity.VisualScripting;
 using UnityEngine;
+using static Unity.VisualScripting.Member;
 
 public class ManagePLayerHitP : MonoBehaviour
 {
@@ -28,8 +29,11 @@ public class ManagePLayerHitP : MonoBehaviour
     [SerializeField]
     private AudioSource racket;
     [SerializeField]
+    private AudioClip[] Grunts;
+    [SerializeField]
     private AudioClip satisfying;
-    private Vector3 p;
+    [HideInInspector]
+    public Vector3 p;
     private Transform ball;
     private SphereCollider sc;
 
@@ -39,30 +43,34 @@ public class ManagePLayerHitP : MonoBehaviour
         sc = ball.GetComponent<SphereCollider>();
     }
 
-    public void HitBall(Vector3 hitAngle, bool dashHit)
+    public void HitBall(Vector3 hitAngle, bool dashHit, bool playSFX = true, float SpeedOveride = 1)
     {
         Vector3 LandPosition;
         LandPosition.y = normalBounds[0].position.y;
         if (!dashHit)
         {
-            float adition = -Vector3.SignedAngle(ParentObject.forward, hitAngle, Vector3.up) / (ToleranceAngle / 2);
+            float adition = Mathf.Clamp(Vector3.SignedAngle(ParentObject.forward, hitAngle, Vector3.up) / (ToleranceAngle / 2), - 1, 1);
             LandPosition.x = Random.Range(normalBounds[0].position.x, normalBounds[2].position.x);
             float distanceZ = Mathf.Abs(normalBounds[0].position.z - normalBounds[1].position.z) / 2;
             LandPosition.z = (normalBounds[0].position.z + normalBounds[1].position.z) / 2;
             LandPosition.z += distanceZ * adition;
-            Bc.HitByPlayer(DetermineBallVelocity(ball.position, LandPosition, dashHit));
+            Bc.HitByPlayer(DetermineBallVelocity(ball.position, LandPosition, dashHit, SpeedOveride), true);
             p = LandPosition;
         }
         else
         {
-            float adition = -Vector3.SignedAngle(ParentObject.forward, hitAngle, Vector3.up) / (DashToleranceAngle / 2);
+            float adition = Mathf.Clamp(Vector3.SignedAngle(ParentObject.forward, hitAngle, Vector3.up) / (DashToleranceAngle / 2), -1, 1);
             LandPosition.x = Random.Range(StrongHitBunds[0].position.x, StrongHitBunds[2].position.x);
             float distanceZ = Mathf.Abs(normalBounds[0].position.z - normalBounds[1].position.z) / 2;
             LandPosition.z = (normalBounds[0].position.z + normalBounds[1].position.z) / 2;
             LandPosition.z += distanceZ * adition;
-            Bc.HitByPlayer(DetermineBallVelocity(ball.position, LandPosition, dashHit));
+            Bc.HitByPlayer(DetermineBallVelocity(ball.position, LandPosition, dashHit, SpeedOveride), true);
             p = LandPosition;
-            racket.PlayOneShot(satisfying, 0.85f);
+            if (playSFX)
+            {
+                racket.PlayOneShot(satisfying, 0.85f);
+                Grunt();
+            }
         }
     }
 
@@ -76,14 +84,20 @@ public class ManagePLayerHitP : MonoBehaviour
 
     }
 
-    Vector3 DetermineBallVelocity(Vector3 startPosition, Vector3 LandPosition, bool dashing)
+    void Grunt()
     {
-        Vector3 velocity = Vector3.zero;
+        racket.pitch = Random.Range(0.9f, 1.1f);
+        racket.PlayOneShot(Grunts[Random.Range(0, Grunts.Length)], 0.35f);
+    }
+
+    Vector3 DetermineBallVelocity(Vector3 startPosition, Vector3 LandPosition, bool dashing, float Overide)
+    {
+        Vector3 velocity;
 
         if (!dashing)
         {
             float distance = Vector2.Distance(v3to2(startPosition), v3to2(LandPosition));
-            float horizontalSpeed = Random.Range(NormalHitSpeed.x, NormalHitSpeed.y);
+            float horizontalSpeed = Random.Range(NormalHitSpeed.x, NormalHitSpeed.y) * Overide;
             float time = distance / horizontalSpeed;
             float h = ball.position.y - sc.radius;
             float verticalS = -CalculateInitialVelocity(h, time);

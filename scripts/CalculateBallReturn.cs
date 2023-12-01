@@ -2,11 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using static Unity.VisualScripting.Member;
 
 public class CalculateBallReturn : MonoBehaviour
 {
     [SerializeField]
     private Transform[] Bounds = new Transform[4];
+    [SerializeField]
+    private Transform[] Bounds1 = new Transform[4];
     [SerializeField]
     private Transform LauchPosition;
     [SerializeField]
@@ -17,25 +20,22 @@ public class CalculateBallReturn : MonoBehaviour
     private Rigidbody Rb;
     [SerializeField]
     private SphereCollider coll;
-
     [SerializeField]
-    private float LaunchSpeed;
-    [SerializeField]
-    private float verticalSpeedDown;
+    private float MaxVerticalSpeed;
+    public Vector2 LaunchSpeed;
 
-    [SerializeField]
-    private bool createP;
-    [SerializeField]
-    private bool Launch;
-    Vector3 landPos;
+    private SphereCollider sc;
 
-
-    // Update is called once per frame
-    void Update()
+    private void Start()
     {
-        if (Input.GetKeyDown(KeyCode.Tab))
+        sc = ball.GetComponent<SphereCollider>();
+    }
+
+    Vector3 landPos;
+    public void Shoot(float SpeedOveride = 1, bool Center = false)
+    {
+        if (!Center)
         {
-            createP = false;
             landPos = new Vector3(Random.Range(Mathf.Min(Bounds[0].position.x, Bounds[1].position.x, Bounds[2].position.x, Bounds[3].position.x),
                 Mathf.Max(Bounds[0].position.x, Bounds[1].position.x, Bounds[2].position.x, Bounds[3].position.x)),
 
@@ -44,18 +44,43 @@ public class CalculateBallReturn : MonoBehaviour
                 Random.Range(Mathf.Min(Bounds[0].position.z, Bounds[1].position.z, Bounds[2].position.z, Bounds[3].position.z),
                 Mathf.Max(Bounds[0].position.z, Bounds[1].position.z, Bounds[2].position.z, Bounds[3].position.z)));
         }
-        if (Input.GetKeyDown(KeyCode.Tab))
+        else
         {
-            Bc.ShouldHit = false;
-            Bc.reset = true;
-            Launch = false;
-            ball.position = LauchPosition.position;
-            Vector3 dir = -(LauchPosition.position - landPos).normalized;
-            float height = ball.position.y - coll.radius;
-            float t = Vector2.Distance(v3to2(LauchPosition.position), v3to2(landPos)) / LaunchSpeed;
-            Rb.velocity = new Vector3(dir.x, 0, dir.z).normalized * LaunchSpeed + Vector3.up * -CalculateInitialVelocity(height, t);
+            landPos = new Vector3(Random.Range(Mathf.Min(Bounds1[0].position.x, Bounds1[1].position.x, Bounds1[2].position.x, Bounds1[3].position.x),
+                Mathf.Max(Bounds1[0].position.x, Bounds1[1].position.x, Bounds1[2].position.x, Bounds1[3].position.x)),
+
+                Bounds1[0].position.y,
+
+                Random.Range(Mathf.Min(Bounds1[0].position.z, Bounds1[1].position.z, Bounds1[2].position.z, Bounds1[3].position.z),
+                Mathf.Max(Bounds1[0].position.z, Bounds1[1].position.z, Bounds1[2].position.z, Bounds1[3].position.z)));
         }
+        Bc.ShouldHit = false;
+        Bc.reset = true;
+        ball.position = LauchPosition.position;
+        Rb.velocity = DetermineBallVelocity(LauchPosition.position, landPos, SpeedOveride);
+        Bc.hitByPlayer = false;
     }
+
+    Vector3 DetermineBallVelocity(Vector3 startPosition, Vector3 LandPosition, float Overide)
+    {
+        Vector3 velocity;
+        float distance = Vector2.Distance(v3to2(startPosition), v3to2(LandPosition));
+        float horizontalSpeed = Random.Range(LaunchSpeed.x, LaunchSpeed.y) * Overide;
+        float time = distance / horizontalSpeed;
+        float h = ball.position.y - sc.radius;
+        float verticalS = -CalculateInitialVelocity(h, time);
+        if (verticalS > MaxVerticalSpeed)
+        {
+            verticalS = MaxVerticalSpeed;
+            time = CalculateFreeFallTime(h, -verticalS);
+            horizontalSpeed = distance / time;
+        }
+        Vector3 Dir = LandPosition - startPosition;
+        Dir.Normalize();
+        velocity = new Vector3(Dir.x, 0, Dir.z).normalized * horizontalSpeed + Vector3.up * verticalS;
+        return velocity;
+    }
+
 
     private void OnDrawGizmos()
     {

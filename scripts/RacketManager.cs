@@ -4,12 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-[System.Serializable]
-struct RacketTranform
-{
-    public Vector3 position;
-    public Vector3 LocalRotation;
-}
+
 public class RacketManager : MonoBehaviour
 {
     [SerializeField]
@@ -69,7 +64,6 @@ public class RacketManager : MonoBehaviour
     private Transform Racket;
     [SerializeField]
     private Transform Pivot;
-    private float PlayerToBallSpeed;
     private float ang = 0;
     float wantedValue;
 
@@ -181,16 +175,12 @@ public class RacketManager : MonoBehaviour
             attackDir = new Vector2(ParentObject.forward.x, Mathf.Abs(ParentObject.forward.z)).normalized;
         }
 
-        if (Vector2.Distance(v3to2(Pivot.position), v3to2(ball.position)) < RacketRange && cantHit <= 0 && Value > 0 && Value < 1)
+        if (Vector2.Distance(v3to2(Pivot.position), v3to2(ball.position)) < RacketRange && cantHit <= 0 && Value > 0 && Value < 1 && !BC.hitByPlayer)
         {
             if (canHit)
             {
                 Colision(new Vector3(attackDir.x, 0, attackDir.y).normalized);
                 sounds.RacketHit();
-            }
-            else
-            {
-                //fail
             }
             
         }

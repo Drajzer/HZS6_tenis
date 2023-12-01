@@ -24,16 +24,20 @@ public class BallControler : MonoBehaviour
     private AudioSource Asource;
 
     private float timeLeft;
+    [HideInInspector]
+    public bool hitByPlayer;
 
     public bool ShouldHit;
     public bool reset = true;
-    int bounceCount = 0;
+    [HideInInspector]
+    public int bounceCount = 0;
     float cooldown = 0;
 
-    public void HitByPlayer(Vector3 Velocity)
+    public void HitByPlayer(Vector3 Velocity, bool playerHit)
     {
         rb.velocity = Velocity;
         bounceCount = 0;
+        hitByPlayer = playerHit;
     }
 
     private void Update()

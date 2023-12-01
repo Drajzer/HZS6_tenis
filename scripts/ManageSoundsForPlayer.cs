@@ -22,8 +22,6 @@ public class ManageSoundsForPlayer : MonoBehaviour
     private AudioSource RackeSFX;
     [SerializeField]
     private AudioClip RacketSwing;
-    [SerializeField]
-    private AudioClip[] Grunts;
 
     private float time;
 
@@ -57,11 +55,6 @@ public class ManageSoundsForPlayer : MonoBehaviour
     {
         Source.pitch = Random.Range(PitchVariation.x, PitchVariation.y);
         RackeSFX.PlayOneShot(HitRacket);
-        if (Random.Range(1, 4) > 2)
-        {
-            Source.pitch = Random.Range(PitchVariation.x, PitchVariation.y);
-            Source.PlayOneShot(Grunts[Random.Range(0, Grunts.Length)], 0.35f);
-        }
     }
 
     public void SwingRacket()
